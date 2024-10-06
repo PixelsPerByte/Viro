@@ -23,7 +23,13 @@ fn main() {
     app.insert_resource(SelectedEntities(HashSet::default()));
 
     app.add_plugins((
-        DefaultPlugins,
+        DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                title: "Viro Editor".into(),
+                ..default()
+            }),
+            ..default()
+        }),
         FlycamPlugin,
         InterfacePlugin,
         PickingPlugin,
