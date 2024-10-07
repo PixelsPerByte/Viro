@@ -3,6 +3,7 @@ mod command;
 mod interface;
 mod observers;
 mod picking;
+mod transform;
 mod transform_gizmo;
 
 use bevy::{color::palettes::css::GOLD, prelude::*, render::primitives::Aabb, utils::HashSet};
@@ -35,6 +36,7 @@ fn main() {
         ObserverPlugin,
         InterfacePlugin,
         PickingPlugin,
+        transform::TransformPlugin,
         CommandPlugin,
     ));
     app.add_systems(Startup, (setup, setup_example));
