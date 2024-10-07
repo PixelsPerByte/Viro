@@ -1,10 +1,12 @@
 use bevy::prelude::*;
 
 pub fn gltf(asset_server: Res<AssetServer>, mut commands: Commands) {
-    let Some(path) = rfd::FileDialog::new()
-        .add_filter("Gltf", &["gltf", "glb"])
-        .pick_file()
-    else {
+    let mut dialog = rfd::FileDialog::new().add_filter("Gltf", &["gltf", "glb"]);
+    if let Ok(path) = std::env::current_dir() {
+        dialog = dialog.set_directory(path);
+    }
+
+    let Some(path) = dialog.pick_file() else {
         return;
     };
 
