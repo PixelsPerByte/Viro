@@ -13,15 +13,19 @@ pub fn show(world: &mut World, ctx: &mut egui::Context) {
         return;
     };
 
-    world.resource_scope::<EditorCommands, _>(|world, commands| {
-        egui::Window::new("Quick Commands")
-            .collapsible(false)
-            .show(ctx, |ui| {
-                show_inner(ui, world, &mut quick, &commands);
-            });
-    });
+    let close = world
+        .resource_scope::<EditorCommands, _>(|world, commands| {
+            egui::Window::new("Quick Commands")
+                .collapsible(false)
+                .show(ctx, |ui| show_inner(ui, world, &mut quick, &commands))
+        })
+        .map(|res| res.inner)
+        .flatten()
+        .unwrap_or(false);
 
-    world.insert_resource(quick);
+    if !close {
+        world.insert_resource(quick);
+    }
 }
 
 fn show_inner(
@@ -29,7 +33,7 @@ fn show_inner(
     world: &mut World,
     quick: &mut QuickCommand,
     commands: &EditorCommands,
-) {
+) -> bool {
     ui.text_edit_singleline(&mut quick.search);
 
     let mut indices: Vec<(usize, usize)> = Vec::new();
@@ -51,5 +55,9 @@ fn show_inner(
                 command, e
             );
         }
+
+        return true;
     }
+
+    false
 }
