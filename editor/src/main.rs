@@ -115,8 +115,12 @@ fn setup_example(
     ));
 }
 
-fn keybindings(keys: Res<ButtonInput<KeyCode>>, mut commands: Commands) {
-    if keys.just_pressed(KeyCode::Space) {
+fn keybindings(
+    keys: Res<ButtonInput<KeyCode>>,
+    quick_command: Option<Res<interface::quick::QuickCommand>>,
+    mut commands: Commands,
+) {
+    if keys.just_pressed(KeyCode::Space) && quick_command.is_none() {
         commands.insert_resource(interface::quick::QuickCommand {
             search: String::new(),
         });
