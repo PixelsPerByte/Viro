@@ -59,7 +59,7 @@ fn main() {
         transform::TransformPlugin,
         CommandPlugin,
     ));
-    app.add_systems(Startup, (setup, setup_example));
+    app.add_systems(Startup, setup);
     app.add_systems(PreUpdate, keybindings);
     app.add_systems(PostUpdate, selection_outlines);
     app.run();
@@ -81,60 +81,6 @@ fn setup(mut commands: Commands, mut gizmo_config_store: ResMut<GizmoConfigStore
         },
         Flycam::default(),
         EditorEntity,
-    ));
-}
-
-fn setup_example(
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    mut commands: Commands,
-) {
-    commands
-        .spawn((
-            PbrBundle {
-                mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
-                material: materials.add(StandardMaterial {
-                    base_color: Color::linear_rgb(0.25, 0.25, 1.0),
-                    ..default()
-                }),
-                ..default()
-            },
-            Name::new("Cuboid"),
-        ))
-        .with_children(|parent| {
-            parent.spawn((
-                PbrBundle {
-                    mesh: meshes.add(Sphere::new(0.25)),
-                    material: materials.add(StandardMaterial {
-                        base_color: Color::linear_rgb(1.0, 1.0, 1.0),
-                        ..default()
-                    }),
-                    transform: Transform::from_xyz(0.0, 1.0, 0.0),
-                    ..default()
-                },
-                Name::new("Sphere"),
-            ));
-        });
-
-    commands.spawn((
-        PbrBundle {
-            mesh: meshes.add(Plane3d::new(Vec3::Y, Vec2::ONE * 3.0)),
-            material: materials.add(StandardMaterial {
-                base_color: Color::linear_rgb(0.25, 1.0, 0.25),
-                ..default()
-            }),
-            transform: Transform::from_xyz(0.0, -0.5, 0.0),
-            ..default()
-        },
-        Name::new("Plane"),
-    ));
-
-    commands.spawn((
-        SpotLightBundle {
-            transform: Transform::from_xyz(-5.0, 5.0, -5.0).looking_at(Vec3::ZERO, Vec3::Y),
-            ..default()
-        },
-        Name::new("SpotLight"),
     ));
 }
 
