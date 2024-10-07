@@ -16,7 +16,7 @@ impl Default for Flycam {
         Self {
             enabled: true,
             speed: 4.0,
-            sensitivity: 0.5,
+            sensitivity: 0.01,
         }
     }
 }
@@ -55,8 +55,7 @@ fn update(
     // Get Input
     let mouse_delta = mouse_motion
         .read()
-        .fold(Vec2::ZERO, |o, m| o - m.delta.yx())
-        * time.delta_seconds();
+        .fold(Vec2::ZERO, |o, m| o - m.delta.yx());
 
     let forward = keys.pressed(KeyCode::KeyW) as i8 - keys.pressed(KeyCode::KeyS) as i8;
     let right = keys.pressed(KeyCode::KeyD) as i8 - keys.pressed(KeyCode::KeyA) as i8;
