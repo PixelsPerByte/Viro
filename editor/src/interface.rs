@@ -71,8 +71,10 @@ fn show_ui(world: &mut World) {
         state.ui(world, egui_context.get_mut());
 
         let mut editor_focus = world.get_resource_mut::<EditorFocus>().unwrap();
-        if matches!(editor_focus.as_ref(), &EditorFocus::None) {
+        if state.cursor_over_ui && matches!(editor_focus.as_ref(), &EditorFocus::None) {
             *editor_focus = EditorFocus::Gui;
+        } else if !state.cursor_over_ui && matches!(editor_focus.as_ref(), &EditorFocus::Gui) {
+            *editor_focus = EditorFocus::None;
         }
     });
 }
