@@ -128,6 +128,14 @@ fn keybindings(
             search: String::new(),
         });
     }
+
+    if keys.just_pressed(KeyCode::KeyG) {
+        commands.trigger(transform::TransformSelected::Translate);
+    } else if keys.just_pressed(KeyCode::KeyR) {
+        commands.trigger(transform::TransformSelected::Rotate);
+    } else if keys.just_pressed(KeyCode::KeyS) {
+        commands.trigger(transform::TransformSelected::Scale);
+    }
 }
 
 fn selection_outlines(

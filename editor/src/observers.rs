@@ -1,6 +1,7 @@
 use bevy::{prelude::*, utils::HashMap};
 
 use crate::{
+    camera::Flycam,
     transform::{cancel_transform, finish_transform, TransformEntities, TransformSelected},
     EditorEntity, SelectedEntities,
 };
@@ -36,6 +37,7 @@ pub fn transform_selected(
     selected: Res<SelectedEntities>,
     transform_query: Query<&Transform>,
     transform_entities: Option<Res<TransformEntities>>,
+    camera_query: Query<&Transform, With<Flycam>>,
     mut commands: Commands,
 ) {
     if transform_entities.is_some() {
@@ -47,10 +49,19 @@ pub fn transform_selected(
         return;
     }
 
+    let (x_axis, y_axis) = {
+        let transform = camera_query
+            .get_single()
+            .expect("Editor Camera doesn't exist.");
+
+        (transform.rotation * Vec3::X, transform.rotation * Vec3::Y)
+    };
+
     let mut resource = TransformEntities {
         entities: HashMap::new(),
-        delta: 0.0,
-        axis: Vec3::ZERO, // TODO
+        delta: Vec2::ZERO,
+        x_axis,
+        y_axis,
         mode: trigger.event().clone(),
         center: Vec3::ZERO,
     };
