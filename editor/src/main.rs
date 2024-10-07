@@ -140,6 +140,7 @@ fn setup_example(
 
 fn keybindings(
     keys: Res<ButtonInput<KeyCode>>,
+    mouse_button: Res<ButtonInput<MouseButton>>,
     quick_command: Option<Res<interface::quick::QuickCommand>>,
     editor_focus: Res<EditorFocus>,
     mut commands: Commands,
@@ -149,6 +150,7 @@ fn keybindings(
             search: String::new(),
         });
     }
+
     if editor_focus.priority() <= EditorFocus::Transform.priority() {
         if keys.just_pressed(KeyCode::KeyG) {
             commands.trigger(transform::TransformSelected::Translate);
@@ -156,6 +158,18 @@ fn keybindings(
             commands.trigger(transform::TransformSelected::Rotate);
         } else if keys.just_pressed(KeyCode::KeyS) {
             commands.trigger(transform::TransformSelected::Scale);
+        }
+    }
+
+    if matches!(editor_focus.as_ref(), &EditorFocus::Transform) {
+        if mouse_button.just_pressed(MouseButton::Left) {
+            commands.trigger(observers::FinishTransform);
+        } else if mouse_button.just_pressed(MouseButton::Right) {
+            commands.trigger(observers::CancelTransform);
+        }
+
+        if keys.just_pressed(KeyCode::Escape) {
+            commands.trigger(observers::CancelTransform);
         }
     }
 }
