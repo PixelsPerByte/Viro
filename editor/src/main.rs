@@ -122,20 +122,27 @@ fn keybindings(
 
 fn selection_outlines(
     selected: Res<SelectedEntities>,
-    query: Query<(&Transform, &Aabb)>,
+    query: Query<&Aabb>,
+    transform_helper: TransformHelper,
     mut gizmos: Gizmos,
 ) {
     // TODO: Should this be replaced with an outline shader?
-    for entity in selected.0.iter() {
-        let Ok((transform, aabb)) = query.get(*entity) else {
+    for &entity in selected.0.iter() {
+        let Ok(global_transform) = transform_helper.compute_global_transform(entity) else {
             continue;
         };
 
+        let Ok(aabb) = query.get(entity) else {
+            continue;
+        };
+
+        let (scale, rotation, _translation) = global_transform.to_scale_rotation_translation();
+
         gizmos
             .rounded_cuboid(
-                transform.transform_point(aabb.center.into()),
-                transform.rotation,
-                Into::<Vec3>::into(aabb.half_extents * 2.0) * transform.scale,
+                global_transform.transform_point(aabb.center.into()),
+                rotation,
+                Into::<Vec3>::into(aabb.half_extents * 2.0) * scale,
                 GOLD,
             )
             .edge_radius(0.0)
