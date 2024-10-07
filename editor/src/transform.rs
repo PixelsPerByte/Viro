@@ -29,10 +29,17 @@ pub fn update_delta(
 
 pub fn update_transform(
     transform_entities: Res<TransformEntities>,
+    keys: Res<ButtonInput<KeyCode>>,
     mut transform_query: Query<&mut Transform>,
 ) {
-    let offset = transform_entities.x_axis * transform_entities.delta.x
-        + transform_entities.y_axis * transform_entities.delta.y;
+    let real_delta = if keys.pressed(KeyCode::ControlLeft) {
+        transform_entities.delta.trunc()
+    } else {
+        transform_entities.delta
+    };
+
+    let offset =
+        transform_entities.x_axis * real_delta.x + transform_entities.y_axis * real_delta.y;
 
     for (entity, home) in transform_entities.entities.iter() {
         let Ok(mut transform) = transform_query.get_mut(*entity) else {
