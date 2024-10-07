@@ -1,6 +1,6 @@
 mod components;
 mod dock;
-mod quick;
+pub mod quick;
 mod toolbar;
 
 use bevy::{prelude::*, render::camera::Viewport, window::PrimaryWindow};

@@ -37,6 +37,7 @@ fn main() {
     ));
     app.add_systems(PreStartup, observers::setup);
     app.add_systems(Startup, (setup, setup_example));
+    app.add_systems(PreUpdate, keybindings);
     app.add_systems(PostUpdate, selection_outlines);
     app.run();
 }
@@ -112,6 +113,14 @@ fn setup_example(
         },
         Name::new("SpotLight"),
     ));
+}
+
+fn keybindings(keys: Res<ButtonInput<KeyCode>>, mut commands: Commands) {
+    if keys.just_pressed(KeyCode::Space) {
+        commands.insert_resource(interface::quick::QuickCommand {
+            search: String::new(),
+        });
+    }
 }
 
 fn selection_outlines(
