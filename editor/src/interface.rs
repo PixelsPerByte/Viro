@@ -9,7 +9,7 @@ use components::ComponentUis;
 use dock::{InterfaceTab, InterfaceTabViewer};
 use egui_dock::{DockArea, DockState, NodeIndex};
 
-use crate::{camera::Flycam, EditorEntity};
+use crate::{camera::Flycam, EditorEntity, EditorFocus};
 
 #[derive(Resource)]
 pub struct InterfaceState {
@@ -69,6 +69,11 @@ fn show_ui(world: &mut World) {
 
     world.resource_scope::<InterfaceState, _>(|world, mut state| {
         state.ui(world, egui_context.get_mut());
+
+        let mut editor_focus = world.get_resource_mut::<EditorFocus>().unwrap();
+        if matches!(editor_focus.as_ref(), &EditorFocus::None) {
+            *editor_focus = EditorFocus::Gui;
+        }
     });
 }
 
@@ -104,15 +109,6 @@ fn set_camera_viewport(
     }
 }
 
-fn update_flycam(
-    interface_state: Res<InterfaceState>,
-    mut flycam_query: Query<&mut Flycam, With<EditorEntity>>,
-) {
-    for mut flycam in flycam_query.iter_mut() {
-        flycam.enabled = !interface_state.cursor_over_ui;
-    }
-}
-
 pub struct InterfacePlugin;
 impl Plugin for InterfacePlugin {
     fn build(&self, app: &mut App) {
@@ -121,7 +117,6 @@ impl Plugin for InterfacePlugin {
         app.insert_resource(ComponentUis::default());
 
         app.add_systems(PreStartup, components::setup);
-        app.add_systems(PreUpdate, update_flycam);
         app.add_systems(
             PostUpdate,
             (show_ui, set_camera_viewport)

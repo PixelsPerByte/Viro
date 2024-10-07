@@ -3,7 +3,7 @@ use bevy::{prelude::*, utils::HashMap};
 use crate::{
     camera::Flycam,
     transform::{cancel_transform, finish_transform, TransformEntities, TransformSelected},
-    EditorEntity, SelectedEntities,
+    EditorEntity, EditorFocus, SelectedEntities,
 };
 
 pub fn setup(mut commands: Commands) {
@@ -38,6 +38,7 @@ pub fn transform_selected(
     transform_query: Query<&Transform>,
     transform_entities: Option<Res<TransformEntities>>,
     camera_query: Query<&Transform, With<Flycam>>,
+    mut editor_focus: ResMut<EditorFocus>,
     mut commands: Commands,
 ) {
     if transform_entities.is_some() {
@@ -46,6 +47,10 @@ pub fn transform_selected(
 
     if selected.0.is_empty() {
         info!("No entity is selected.");
+        return;
+    }
+
+    if editor_focus.priority() > EditorFocus::Transform.priority() {
         return;
     }
 
@@ -85,6 +90,7 @@ pub fn transform_selected(
 
     resource.center /= selected.0.len() as f32;
     commands.insert_resource(resource);
+    *editor_focus = EditorFocus::Transform;
 }
 
 pub fn transform_finish(
@@ -92,8 +98,10 @@ pub fn transform_finish(
     transform_entities: Res<TransformEntities>,
     transform_query: Query<&Transform>,
     commands: Commands,
+    mut editor_focus: ResMut<EditorFocus>,
 ) {
     finish_transform(transform_entities, transform_query, commands);
+    *editor_focus = EditorFocus::Gui;
 }
 
 pub fn transform_cancel(
@@ -101,8 +109,10 @@ pub fn transform_cancel(
     transform_entities: Res<TransformEntities>,
     transform_query: Query<&mut Transform>,
     commands: Commands,
+    mut pointer_focus: ResMut<EditorFocus>,
 ) {
     cancel_transform(transform_entities, transform_query, commands);
+    *pointer_focus = EditorFocus::Gui;
 }
 
 pub struct ObserverPlugin;

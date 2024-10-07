@@ -4,9 +4,10 @@ use bevy::{
     window::{CursorGrabMode, PrimaryWindow},
 };
 
+use crate::EditorFocus;
+
 #[derive(Component)]
 pub struct Flycam {
-    pub enabled: bool,
     pub speed: f32,
     pub sensitivity: f32,
 }
@@ -14,7 +15,6 @@ pub struct Flycam {
 impl Default for Flycam {
     fn default() -> Self {
         Self {
-            enabled: true,
             speed: 4.0,
             sensitivity: 0.01,
         }
@@ -28,6 +28,7 @@ fn update(
     mut mouse_motion: EventReader<MouseMotion>,
     mut query: Query<(&Flycam, &mut Transform)>,
     mut window_query: Query<&mut Window, With<PrimaryWindow>>,
+    mut editor_focus: ResMut<EditorFocus>,
 ) {
     let Ok(mut window) = window_query.get_single_mut() else {
         return;
@@ -37,11 +38,18 @@ fn update(
     // but only if right click was pressed while the cursor was not over any Ui
     if (!mouse_button.just_pressed(MouseButton::Right) && window.cursor.visible)
         || mouse_button.just_released(MouseButton::Right)
-        || query.iter().all(|(f, _)| !f.enabled)
+        || !matches!(
+            editor_focus.as_ref(),
+            &EditorFocus::Camera | &EditorFocus::None
+        )
     {
         if !window.cursor.visible {
             window.cursor.grab_mode = CursorGrabMode::None;
             window.cursor.visible = true;
+        }
+
+        if matches!(editor_focus.as_ref(), &EditorFocus::Camera) {
+            *editor_focus = EditorFocus::None;
         }
         return;
     }
@@ -64,10 +72,6 @@ fn update(
 
     // Apply transform
     for (flycam, mut transform) in query.iter_mut() {
-        if !flycam.enabled {
-            continue;
-        }
-
         // Rotation
         let (ry, rx, _rz) = transform.rotation.to_euler(EulerRot::YXZ);
         transform.rotation = Quat::from_euler(
@@ -84,6 +88,8 @@ fn update(
             * flycam.speed;
         transform.translation += translation_delta;
     }
+
+    *editor_focus = EditorFocus::Camera;
 }
 
 pub struct FlycamPlugin;

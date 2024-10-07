@@ -13,6 +13,25 @@ use interface::InterfacePlugin;
 use observers::ObserverPlugin;
 use picking::PickingPlugin;
 
+#[derive(Resource)]
+pub enum EditorFocus {
+    None,
+    Camera,
+    Gui,
+    Transform,
+}
+
+impl EditorFocus {
+    pub fn priority(&self) -> usize {
+        match self {
+            Self::None => 0,
+            Self::Camera => 2,
+            Self::Gui => 1,
+            Self::Transform => 1,
+        }
+    }
+}
+
 #[derive(Component)]
 pub struct EditorEntity;
 
@@ -23,6 +42,7 @@ fn main() {
     let mut app = App::new();
 
     app.insert_resource(SelectedEntities(HashSet::default()));
+    app.insert_resource(EditorFocus::Camera);
 
     app.add_plugins((
         DefaultPlugins.set(WindowPlugin {
@@ -121,6 +141,7 @@ fn setup_example(
 fn keybindings(
     keys: Res<ButtonInput<KeyCode>>,
     quick_command: Option<Res<interface::quick::QuickCommand>>,
+    editor_focus: Res<EditorFocus>,
     mut commands: Commands,
 ) {
     if keys.just_pressed(KeyCode::Space) && quick_command.is_none() {
@@ -128,13 +149,14 @@ fn keybindings(
             search: String::new(),
         });
     }
-
-    if keys.just_pressed(KeyCode::KeyG) {
-        commands.trigger(transform::TransformSelected::Translate);
-    } else if keys.just_pressed(KeyCode::KeyR) {
-        commands.trigger(transform::TransformSelected::Rotate);
-    } else if keys.just_pressed(KeyCode::KeyS) {
-        commands.trigger(transform::TransformSelected::Scale);
+    if editor_focus.priority() <= EditorFocus::Transform.priority() {
+        if keys.just_pressed(KeyCode::KeyG) {
+            commands.trigger(transform::TransformSelected::Translate);
+        } else if keys.just_pressed(KeyCode::KeyR) {
+            commands.trigger(transform::TransformSelected::Rotate);
+        } else if keys.just_pressed(KeyCode::KeyS) {
+            commands.trigger(transform::TransformSelected::Scale);
+        }
     }
 }
 
