@@ -1,3 +1,5 @@
+use std::f32::consts::FRAC_PI_2;
+
 use bevy::{
     input::mouse::MouseMotion,
     prelude::*,
@@ -77,7 +79,7 @@ fn update(
         transform.rotation = Quat::from_euler(
             EulerRot::YXZ,
             ry + mouse_delta.y * flycam.sensitivity,
-            rx + mouse_delta.x * flycam.sensitivity,
+            (rx + mouse_delta.x * flycam.sensitivity).clamp(-FRAC_PI_2, FRAC_PI_2),
             0.0,
         );
 
