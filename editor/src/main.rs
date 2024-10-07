@@ -61,7 +61,7 @@ fn main() {
     ));
     app.add_systems(Startup, setup);
     app.add_systems(PreUpdate, keybindings);
-    app.add_systems(PostUpdate, selection_outlines);
+    app.add_systems(PostUpdate, (grid, selection_outlines));
     app.run();
 }
 
@@ -150,37 +150,52 @@ fn selection_outlines(
     }
 }
 
-fn grid(mut gizmos: Gizmos) {
+fn grid(camera_query: Query<&Transform, With<Flycam>>, mut gizmos: Gizmos) {
+    let camera = camera_query.get_single().unwrap();
+
     gizmos.line(
-        Vec3::X * 10.0,
-        -Vec3::X * 10.0,
+        Vec3::X * 1000.0 + Vec3::Y * 0.001,
+        -Vec3::X * 1000.0 + Vec3::Y * 0.001,
         LinearRgba::rgb(1.0, 0.0, 0.0),
     );
     gizmos.line(
-        Vec3::Y * 10.0,
-        -Vec3::Y * 10.0,
+        Vec3::Y * 1000.0,
+        -Vec3::Y * 1000.0,
         LinearRgba::rgb(0.0, 1.0, 0.0),
     );
     gizmos.line(
-        Vec3::Z * 10.0,
-        -Vec3::Z * 10.0,
+        Vec3::Z * 1000.0 + Vec3::Y * 0.001,
+        -Vec3::Z * 1000.0 + Vec3::Y * 0.001,
         LinearRgba::rgb(0.0, 0.0, 1.0),
     );
 
-    let mut grid_axis = |start: Vec3, end: Vec3, axis: Vec3| {
-        for i in -10..=10 {
-            if i == 0 {
-                continue;
-            }
+    let mut grid_axis = |center: Vec3, length: f32, axis: Vec3, offset: Vec3| {
+        for i in -200..=200 {
+            let mut start_color = LinearRgba::rgb(0.1, 0.1, 0.1);
+            let end_color = LinearRgba::new(0.1, 0.1, 0.1, 0.0);
+            start_color.alpha = 1.0 - (i as f32).abs() * 0.005;
 
-            gizmos.line(
-                start + i as f32 * axis,
-                end + i as f32 * axis,
-                LinearRgba::rgb(0.1, 0.1, 0.1),
+            let offset = i as f32 * offset;
+            let start = axis * length;
+            let end = axis * -length;
+
+            gizmos.line_gradient(
+                offset + center,
+                start + offset + center,
+                start_color,
+                end_color,
+            );
+            gizmos.line_gradient(
+                offset + center,
+                end + offset + center,
+                start_color,
+                end_color,
             );
         }
     };
 
-    grid_axis(Vec3::X * 10.0, Vec3::X * -10.0, Vec3::Z);
-    grid_axis(Vec3::Z * 10.0, Vec3::Z * -10.0, Vec3::X);
+    let translation = camera.translation.trunc() * Vec3::new(1.0, 0.0, 1.0);
+
+    grid_axis(translation, 210.0, Vec3::X, Vec3::Z);
+    grid_axis(translation, 210.0, Vec3::Z, Vec3::X);
 }
