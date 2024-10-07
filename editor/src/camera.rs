@@ -16,7 +16,7 @@ impl Default for Flycam {
     fn default() -> Self {
         Self {
             speed: 4.0,
-            sensitivity: 0.01,
+            sensitivity: 0.005,
         }
     }
 }
