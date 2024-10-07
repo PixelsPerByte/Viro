@@ -9,6 +9,7 @@ use bevy::{color::palettes::css::GOLD, prelude::*, render::primitives::Aabb, uti
 use camera::{Flycam, FlycamPlugin};
 use command::CommandPlugin;
 use interface::InterfacePlugin;
+use observers::ObserverPlugin;
 use picking::PickingPlugin;
 
 #[derive(Component)]
@@ -31,11 +32,11 @@ fn main() {
             ..default()
         }),
         FlycamPlugin,
+        ObserverPlugin,
         InterfacePlugin,
         PickingPlugin,
         CommandPlugin,
     ));
-    app.add_systems(PreStartup, observers::setup);
     app.add_systems(Startup, (setup, setup_example));
     app.add_systems(PreUpdate, keybindings);
     app.add_systems(PostUpdate, selection_outlines);

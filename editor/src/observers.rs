@@ -18,3 +18,10 @@ pub fn select_entity(trigger: Trigger<SelectEntity>, mut selected: ResMut<Select
         selected.0.insert(event.target);
     }
 }
+
+pub struct ObserverPlugin;
+impl Plugin for ObserverPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(PreStartup, setup);
+    }
+}
