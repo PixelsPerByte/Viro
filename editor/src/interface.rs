@@ -20,11 +20,7 @@ pub struct InterfaceState {
 
 impl InterfaceState {
     pub fn ui(&mut self, world: &mut World, ctx: &mut egui::Context) {
-        egui::Window::new("Quick Commands")
-            .collapsible(false)
-            .show(ctx, |ui| {
-                quick::show(world, ui);
-            });
+        quick::show(world, ctx);
 
         egui::TopBottomPanel::top("ToolBar").show(ctx, |ui| {
             toolbar::show(world, ui);
