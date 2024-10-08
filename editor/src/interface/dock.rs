@@ -36,6 +36,15 @@ impl<'a> TabViewer for InterfaceTabViewer<'a> {
             InterfaceTab::Viewport => {
                 *self.cursor_over_ui = !ui.rect_contains_pointer(ui.clip_rect());
                 *self.viewport_rect = ui.clip_rect();
+
+                // FPS
+                let time = self.world.resource::<Time<Virtual>>();
+                let fps = 1.0 / time.delta_seconds();
+                let trunc_fps = (fps * 100.0).trunc() / 100.0;
+
+                ui.label(
+                    egui::RichText::new(format!("fps: {}", trunc_fps)).color(egui::Color32::WHITE),
+                );
             }
             InterfaceTab::Entities => {
                 entities::show(self.world, ui);
