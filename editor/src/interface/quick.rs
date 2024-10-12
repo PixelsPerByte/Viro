@@ -1,36 +1,40 @@
 use bevy::prelude::*;
-use bevy_egui::egui;
+use bevy_egui::{egui, EguiContexts};
 
 use crate::command::EditorCommands;
+
+use super::InterfaceSet;
 
 #[derive(Resource)]
 pub struct QuickCommand {
     pub search: String,
 }
 
-pub fn show(world: &mut World, ctx: &mut egui::Context) {
-    let Some(mut quick) = world.remove_resource::<QuickCommand>() else {
-        return;
-    };
+fn show(
+    commands: Res<EditorCommands>,
+    mut quick: ResMut<QuickCommand>,
+    mut contexts: EguiContexts,
+    mut world_commands: Commands,
+) {
+    let ctx = contexts.ctx_mut();
 
-    let close = world
-        .resource_scope::<EditorCommands, _>(|world, commands| {
-            egui::Window::new("Quick Commands")
-                .collapsible(false)
-                .show(ctx, |ui| show_inner(ui, world, &mut quick, &commands))
+    let close = egui::Window::new("Quick Commands")
+        .collapsible(false)
+        .show(ctx, |ui| {
+            show_inner(ui, &mut world_commands, &mut quick, &commands)
         })
         .map(|res| res.inner)
         .flatten()
         .unwrap_or(false);
 
-    if !close {
-        world.insert_resource(quick);
+    if close {
+        world_commands.remove_resource::<QuickCommand>();
     }
 }
 
 fn show_inner(
     ui: &mut egui::Ui,
-    world: &mut World,
+    world_commands: &mut Commands,
     quick: &mut QuickCommand,
     commands: &EditorCommands,
 ) -> bool {
@@ -49,15 +53,27 @@ fn show_inner(
             continue;
         }
 
-        if let Err(e) = world.run_system(command.system) {
-            error!(
-                "Failed to execute command {:?}\nReturned error: {:?}",
-                command, e
-            );
-        }
+        world_commands.run_system(command.system);
+        // if let Err(e) =  {
+        //     error!(
+        //         "Failed to execute command {:?}\nReturned error: {:?}",
+        //         command, e
+        //     );
+        // }
 
         return true;
     }
 
     false
+}
+
+pub struct QuickCommandPlugin;
+impl Plugin for QuickCommandPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(
+            PostUpdate,
+            show.run_if(resource_exists::<QuickCommand>)
+                .in_set(InterfaceSet::Overlay),
+        );
+    }
 }

@@ -11,6 +11,14 @@ use egui_dock::{DockArea, DockState, NodeIndex};
 
 use crate::{camera::Flycam, EditorEntity, EditorFocus};
 
+#[derive(SystemSet, PartialEq, Eq, Hash, Clone, Debug)]
+pub enum InterfaceSet {
+    Pre,
+    View,
+    Overlay,
+    Post,
+}
+
 #[derive(Resource)]
 pub struct InterfaceState {
     pub dock_state: DockState<InterfaceTab>,
@@ -20,7 +28,7 @@ pub struct InterfaceState {
 
 impl InterfaceState {
     pub fn ui(&mut self, world: &mut World, ctx: &mut egui::Context) {
-        quick::show(world, ctx);
+        // quick::show(world, ctx);
 
         egui::TopBottomPanel::top("ToolBar").show(ctx, |ui| {
             toolbar::show(world, ui);
@@ -118,13 +126,28 @@ impl Plugin for InterfacePlugin {
         app.insert_resource(InterfaceState::default());
         app.insert_resource(ComponentUis::default());
 
-        app.add_systems(PreStartup, components::setup);
-        app.add_systems(
+        app.configure_sets(
             PostUpdate,
-            (show_ui, set_camera_viewport)
+            (
+                InterfaceSet::Pre,
+                InterfaceSet::View,
+                InterfaceSet::Overlay,
+                InterfaceSet::Post,
+            )
                 .chain()
                 .before(EguiSet::ProcessOutput)
                 .before(TransformSystem::TransformPropagate),
         );
+
+        app.add_systems(PreStartup, components::setup);
+        app.add_systems(
+            PostUpdate,
+            (
+                show_ui.in_set(InterfaceSet::View),
+                set_camera_viewport.in_set(InterfaceSet::Post),
+            ),
+        );
+
+        app.add_plugins(quick::QuickCommandPlugin);
     }
 }
