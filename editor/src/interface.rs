@@ -34,14 +34,29 @@ impl InterfaceState {
             toolbar::show(world, ui);
         });
 
-        DockArea::new(&mut self.dock_state).show(
-            ctx,
-            &mut InterfaceTabViewer {
-                world,
-                viewport_rect: &mut self.viewport_rect,
-                cursor_over_ui: &mut self.cursor_over_ui,
-            },
-        );
+        let mut added_tabs = Vec::new();
+        let mut style = egui_dock::Style::from_egui(ctx.style().as_ref());
+        style.buttons.add_tab_align = egui_dock::TabAddAlign::Left;
+
+        DockArea::new(&mut self.dock_state)
+            .style(style)
+            .show_add_buttons(true)
+            .show_add_popup(true)
+            .show(
+                ctx,
+                &mut InterfaceTabViewer {
+                    world,
+                    viewport_rect: &mut self.viewport_rect,
+                    cursor_over_ui: &mut self.cursor_over_ui,
+                    added_tabs: &mut added_tabs,
+                },
+            );
+
+        for addition in added_tabs {
+            self.dock_state
+                .set_focused_node_and_surface((addition.surface, addition.node));
+            self.dock_state.push_to_focused_leaf(addition.tab);
+        }
     }
 }
 
