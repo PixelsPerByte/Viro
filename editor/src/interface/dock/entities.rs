@@ -8,10 +8,12 @@ pub fn show(world: &mut World, ui: &mut egui::Ui) {
     let mut info_query =
         world.query_filtered::<(Option<&Name>, Option<&Children>), Without<EditorEntity>>();
 
-    let entities = roots.iter(world).collect::<Vec<Entity>>();
-    for entity in entities {
-        show_entity(ui, world, &mut info_query, entity);
-    }
+    egui::ScrollArea::vertical().show(ui, |ui| {
+        let entities = roots.iter(world).collect::<Vec<Entity>>();
+        for entity in entities {
+            show_entity(ui, world, &mut info_query, entity);
+        }
+    });
 }
 
 fn show_entity(

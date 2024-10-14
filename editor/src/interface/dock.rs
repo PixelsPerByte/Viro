@@ -6,6 +6,12 @@ use bevy::prelude::*;
 use bevy_egui::egui;
 use egui_dock::TabViewer;
 
+pub struct AddTab {
+    pub tab: InterfaceTab,
+    pub surface: egui_dock::SurfaceIndex,
+    pub node: egui_dock::NodeIndex,
+}
+
 pub enum InterfaceTab {
     Viewport,
     Entities,
@@ -17,6 +23,7 @@ pub struct InterfaceTabViewer<'a> {
     pub world: &'a mut World,
     pub viewport_rect: &'a mut egui::Rect,
     pub cursor_over_ui: &'a mut bool,
+    pub added_tabs: &'a mut Vec<AddTab>,
 }
 
 impl<'a> TabViewer for InterfaceTabViewer<'a> {
@@ -60,5 +67,31 @@ impl<'a> TabViewer for InterfaceTabViewer<'a> {
 
     fn clear_background(&self, tab: &Self::Tab) -> bool {
         !matches!(tab, InterfaceTab::Viewport)
+    }
+
+    fn closeable(&mut self, tab: &mut Self::Tab) -> bool {
+        !matches!(tab, InterfaceTab::Viewport)
+    }
+
+    fn add_popup(
+        &mut self,
+        ui: &mut egui::Ui,
+        surface: egui_dock::SurfaceIndex,
+        node: egui_dock::NodeIndex,
+    ) {
+        ui.set_min_width(120.0);
+        ui.style_mut().visuals.button_frame = false;
+
+        let tab = if ui.button("Entities").clicked() {
+            InterfaceTab::Entities
+        } else if ui.button("Inspector").clicked() {
+            InterfaceTab::Inspector
+        } else if ui.button("View Settings").clicked() {
+            InterfaceTab::ViewSettings
+        } else {
+            return;
+        };
+
+        self.added_tabs.push(AddTab { tab, surface, node });
     }
 }
