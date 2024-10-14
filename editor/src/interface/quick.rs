@@ -20,6 +20,9 @@ fn show(
 
     let close = egui::Window::new("Quick Commands")
         .collapsible(false)
+        .resizable(false)
+        .title_bar(false)
+        .movable(false)
         .show(ctx, |ui| {
             show_inner(ui, &mut world_commands, &mut quick, &commands)
         })
@@ -38,7 +41,9 @@ fn show_inner(
     quick: &mut QuickCommand,
     commands: &EditorCommands,
 ) -> bool {
-    ui.text_edit_singleline(&mut quick.search);
+    let search_field = egui::TextEdit::singleline(&mut quick.search)
+        .min_size(egui::vec2(ui.available_width(), 5.0));
+    ui.add(search_field);
 
     let mut indices: Vec<(usize, usize)> = Vec::new();
     for (command, i) in commands.list.iter().zip(0..) {
@@ -49,7 +54,15 @@ fn show_inner(
 
     for (_, i) in indices {
         let command = &commands.list[i];
-        if !ui.button(&command.name).clicked() {
+        let mut button = egui::Button::new(&command.name)
+            .fill(egui::Color32::TRANSPARENT)
+            .min_size(egui::vec2(ui.available_width(), 5.0));
+
+        if let Some(path) = command.toolbar.as_ref() {
+            button = button.shortcut_text(path);
+        }
+
+        if !ui.add(button).clicked() {
             continue;
         }
 
