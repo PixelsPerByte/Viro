@@ -1,3 +1,4 @@
+mod add;
 mod import;
 mod scene;
 
@@ -117,5 +118,43 @@ impl Plugin for CommandPlugin {
         //     ToolbarSection::Import,
         //     import::vrm,
         // );
+
+        // Primitives
+        register_command(
+            app.world_mut(),
+            "Cube".into(),
+            Some("Add"),
+            add::system::<Cuboid>,
+        );
+        register_command(
+            app.world_mut(),
+            "Sphere".into(),
+            Some("Add"),
+            add::system::<Sphere>,
+        );
+        register_command(
+            app.world_mut(),
+            "Plane".into(),
+            Some("Add"),
+            add::system::<Plane3d>,
+        );
+        register_command(
+            app.world_mut(),
+            "Cylinder".into(),
+            Some("Add"),
+            add::system::<Cylinder>,
+        );
+        register_command(
+            app.world_mut(),
+            "Cone".into(),
+            Some("Add"),
+            add::system::<Cone>,
+        );
+        register_command(
+            app.world_mut(),
+            "Torus".into(),
+            Some("Add"),
+            add::system::<Torus>,
+        );
     }
 }
