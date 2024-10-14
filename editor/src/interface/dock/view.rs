@@ -5,10 +5,7 @@ use bevy::{
         motion_blur::MotionBlur,
         prepass::{DeferredPrepass, DepthPrepass, MotionVectorPrepass, NormalPrepass},
     },
-    pbr::{
-        ScreenSpaceAmbientOcclusionBundle, ScreenSpaceAmbientOcclusionSettings,
-        ScreenSpaceReflectionsSettings,
-    },
+    pbr::{ScreenSpaceAmbientOcclusionSettings, ScreenSpaceReflectionsSettings},
     prelude::*,
 };
 use bevy_egui::egui;

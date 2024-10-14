@@ -11,5 +11,6 @@ bevy = { version = "*", features = ["wayland"] }
 bevy_egui = "0.29.0"
 bevy_mod_picking = { version = "0.20.1", features = ["bevy_egui"] }
 egui_dock = "0.13.0"
+indexmap = "2.6.0"
 rfd = "0.15.0"
 strsim = "0.11.1"

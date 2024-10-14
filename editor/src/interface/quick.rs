@@ -41,14 +41,14 @@ fn show_inner(
     ui.text_edit_singleline(&mut quick.search);
 
     let mut indices: Vec<(usize, usize)> = Vec::new();
-    for (command, i) in commands.0.iter().zip(0..) {
+    for (command, i) in commands.list.iter().zip(0..) {
         let v = strsim::levenshtein(&command.name, &quick.search);
         indices.push((v, i));
     }
     indices.sort_by(|a, b| a.0.cmp(&b.0));
 
     for (_, i) in indices {
-        let command = &commands.0[i];
+        let command = &commands.list[i];
         if !ui.button(&command.name).clicked() {
             continue;
         }
