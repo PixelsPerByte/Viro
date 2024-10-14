@@ -23,7 +23,7 @@ pub fn select_entity(
     editor_action: Res<EditorAction>,
     mut selected: ResMut<SelectedEntities>,
 ) {
-    if editor_action.is_some() {
+    if editor_action.is_some_and(|v| v != crate::GUI_ACTION_ID) {
         return;
     }
 
