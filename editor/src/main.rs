@@ -79,7 +79,10 @@ fn keybindings(
     editor_action: Res<EditorAction>,
     mut commands: Commands,
 ) {
-    if keys.just_pressed(KeyCode::Space) && quick_command.is_none() {
+    if keys.just_pressed(KeyCode::Space)
+        && quick_command.is_none()
+        && editor_action.is_none_or(|v| v == GUI_ACTION_ID)
+    {
         commands.insert_resource(interface::quick::QuickCommand::default());
     } else if keys.just_pressed(KeyCode::Escape) && quick_command.is_some() {
         commands.remove_resource::<interface::quick::QuickCommand>();
