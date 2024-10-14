@@ -13,24 +13,12 @@ use interface::InterfacePlugin;
 use observers::ObserverPlugin;
 use picking::PickingPlugin;
 
-#[derive(Resource)]
-pub enum EditorFocus {
-    None,
-    Camera,
-    Gui,
-    Transform,
-}
+pub const GUI_ACTION_ID: u64 = 0;
+pub const CAMERA_ACTION_ID: u64 = 1;
+pub const TRANSFORM_ACTION_ID: u64 = 2;
 
-impl EditorFocus {
-    pub fn priority(&self) -> usize {
-        match self {
-            Self::None => 0,
-            Self::Camera => 2,
-            Self::Gui => 1,
-            Self::Transform => 1,
-        }
-    }
-}
+#[derive(Resource, Deref)]
+pub struct EditorAction(pub Option<u64>);
 
 #[derive(Component)]
 pub struct EditorEntity;
@@ -42,7 +30,7 @@ fn main() {
     let mut app = App::new();
 
     app.insert_resource(SelectedEntities(HashSet::default()));
-    app.insert_resource(EditorFocus::Camera);
+    app.insert_resource(EditorAction(None));
 
     app.add_plugins((
         DefaultPlugins.set(WindowPlugin {
@@ -88,16 +76,18 @@ fn keybindings(
     keys: Res<ButtonInput<KeyCode>>,
     mouse_button: Res<ButtonInput<MouseButton>>,
     quick_command: Option<Res<interface::quick::QuickCommand>>,
-    editor_focus: Res<EditorFocus>,
+    editor_action: Res<EditorAction>,
     mut commands: Commands,
 ) {
     if keys.just_pressed(KeyCode::Space) && quick_command.is_none() {
         commands.insert_resource(interface::quick::QuickCommand {
             search: String::new(),
         });
+    } else if keys.just_pressed(KeyCode::Escape) && quick_command.is_some() {
+        commands.remove_resource::<interface::quick::QuickCommand>();
     }
 
-    if editor_focus.priority() <= EditorFocus::Transform.priority() {
+    if editor_action.is_none_or(|v| v == TRANSFORM_ACTION_ID) {
         if keys.just_pressed(KeyCode::KeyG) {
             commands.trigger(transform::TransformSelected::Translate);
         } else if keys.just_pressed(KeyCode::KeyR) {
@@ -107,7 +97,7 @@ fn keybindings(
         }
     }
 
-    if matches!(editor_focus.as_ref(), &EditorFocus::Transform) {
+    if editor_action.is_some_and(|v| v == TRANSFORM_ACTION_ID) {
         if mouse_button.just_pressed(MouseButton::Left) {
             commands.trigger(observers::FinishTransform);
         } else if mouse_button.just_pressed(MouseButton::Right) {

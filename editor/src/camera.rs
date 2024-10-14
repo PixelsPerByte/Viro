@@ -6,7 +6,7 @@ use bevy::{
     window::{CursorGrabMode, PrimaryWindow},
 };
 
-use crate::EditorFocus;
+use crate::EditorAction;
 
 #[derive(Component)]
 pub struct Flycam {
@@ -30,7 +30,7 @@ fn update(
     mut mouse_motion: EventReader<MouseMotion>,
     mut query: Query<(&Flycam, &mut Transform)>,
     mut window_query: Query<&mut Window, With<PrimaryWindow>>,
-    mut editor_focus: ResMut<EditorFocus>,
+    mut editor_action: ResMut<EditorAction>,
 ) {
     let Ok(mut window) = window_query.get_single_mut() else {
         return;
@@ -40,18 +40,15 @@ fn update(
     // but only if right click was pressed while the cursor was not over any Ui
     if (!mouse_button.just_pressed(MouseButton::Right) && window.cursor.visible)
         || mouse_button.just_released(MouseButton::Right)
-        || !matches!(
-            editor_focus.as_ref(),
-            &EditorFocus::Camera | &EditorFocus::None
-        )
+        || !editor_action.is_none_or(|v| v == crate::CAMERA_ACTION_ID)
     {
         if !window.cursor.visible {
             window.cursor.grab_mode = CursorGrabMode::None;
             window.cursor.visible = true;
         }
 
-        if matches!(editor_focus.as_ref(), &EditorFocus::Camera) {
-            *editor_focus = EditorFocus::None;
+        if editor_action.is_some_and(|v| v == crate::CAMERA_ACTION_ID) {
+            editor_action.0 = None;
         }
         return;
     }
@@ -91,7 +88,7 @@ fn update(
         transform.translation += translation_delta;
     }
 
-    *editor_focus = EditorFocus::Camera;
+    editor_action.0 = Some(crate::CAMERA_ACTION_ID);
 }
 
 pub struct FlycamPlugin;

@@ -9,7 +9,7 @@ use components::ComponentUis;
 use dock::{InterfaceTab, InterfaceTabViewer};
 use egui_dock::{DockArea, DockState, NodeIndex};
 
-use crate::{camera::Flycam, EditorEntity, EditorFocus};
+use crate::{camera::Flycam, EditorAction, EditorEntity};
 
 #[derive(SystemSet, PartialEq, Eq, Hash, Clone, Debug)]
 pub enum InterfaceSet {
@@ -78,11 +78,12 @@ fn show_ui(world: &mut World) {
     world.resource_scope::<InterfaceState, _>(|world, mut state| {
         state.ui(world, egui_context.get_mut());
 
-        let mut editor_focus = world.get_resource_mut::<EditorFocus>().unwrap();
-        if state.cursor_over_ui && matches!(editor_focus.as_ref(), &EditorFocus::None) {
-            *editor_focus = EditorFocus::Gui;
-        } else if !state.cursor_over_ui && matches!(editor_focus.as_ref(), &EditorFocus::Gui) {
-            *editor_focus = EditorFocus::None;
+        let mut editor_action = world.get_resource_mut::<EditorAction>().unwrap();
+        if state.cursor_over_ui && editor_action.is_none() {
+            editor_action.0 = Some(crate::GUI_ACTION_ID);
+        } else if !state.cursor_over_ui && editor_action.is_some_and(|v| v == crate::GUI_ACTION_ID)
+        {
+            editor_action.0 = None;
         }
     });
 }

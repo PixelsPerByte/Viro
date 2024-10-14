@@ -3,7 +3,7 @@ use bevy::{prelude::*, utils::HashMap};
 use crate::{
     camera::Flycam,
     transform::{cancel_transform, finish_transform, TransformEntities, TransformSelected},
-    EditorEntity, EditorFocus, SelectedEntities,
+    EditorAction, EditorEntity, SelectedEntities,
 };
 
 pub fn setup(mut commands: Commands) {
@@ -18,7 +18,15 @@ pub struct SelectEntity {
     pub target: Entity,
 }
 
-pub fn select_entity(trigger: Trigger<SelectEntity>, mut selected: ResMut<SelectedEntities>) {
+pub fn select_entity(
+    trigger: Trigger<SelectEntity>,
+    editor_action: Res<EditorAction>,
+    mut selected: ResMut<SelectedEntities>,
+) {
+    if editor_action.is_some() {
+        return;
+    }
+
     let event = trigger.event();
 
     if !selected.0.remove(&event.target) {
@@ -38,7 +46,7 @@ pub fn transform_selected(
     transform_query: Query<&Transform>,
     transform_entities: Option<Res<TransformEntities>>,
     camera_query: Query<&Transform, With<Flycam>>,
-    mut editor_focus: ResMut<EditorFocus>,
+    mut editor_action: ResMut<EditorAction>,
     mut commands: Commands,
 ) {
     if transform_entities.is_some() {
@@ -50,7 +58,7 @@ pub fn transform_selected(
         return;
     }
 
-    if editor_focus.priority() > EditorFocus::Transform.priority() {
+    if !editor_action.is_none_or(|v| v == crate::TRANSFORM_ACTION_ID) {
         return;
     }
 
@@ -90,7 +98,7 @@ pub fn transform_selected(
 
     resource.center /= selected.0.len() as f32;
     commands.insert_resource(resource);
-    *editor_focus = EditorFocus::Transform;
+    editor_action.0 = Some(crate::TRANSFORM_ACTION_ID);
 }
 
 pub fn transform_finish(
@@ -98,10 +106,10 @@ pub fn transform_finish(
     transform_entities: Res<TransformEntities>,
     transform_query: Query<&Transform>,
     commands: Commands,
-    mut editor_focus: ResMut<EditorFocus>,
+    mut editor_action: ResMut<EditorAction>,
 ) {
     finish_transform(transform_entities, transform_query, commands);
-    *editor_focus = EditorFocus::Gui;
+    editor_action.0 = None;
 }
 
 pub fn transform_cancel(
@@ -109,10 +117,10 @@ pub fn transform_cancel(
     transform_entities: Res<TransformEntities>,
     transform_query: Query<&mut Transform>,
     commands: Commands,
-    mut pointer_focus: ResMut<EditorFocus>,
+    mut editor_action: ResMut<EditorAction>,
 ) {
     cancel_transform(transform_entities, transform_query, commands);
-    *pointer_focus = EditorFocus::Gui;
+    editor_action.0 = None;
 }
 
 pub struct ObserverPlugin;
