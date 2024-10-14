@@ -5,9 +5,10 @@ use crate::command::EditorCommands;
 
 use super::InterfaceSet;
 
-#[derive(Resource)]
+#[derive(Resource, Default)]
 pub struct QuickCommand {
     pub search: String,
+    pub selected: usize,
 }
 
 fn show(
@@ -43,8 +44,13 @@ fn show_inner(
 ) -> bool {
     let search_field = egui::TextEdit::singleline(&mut quick.search)
         .min_size(egui::vec2(ui.available_width(), 5.0));
-    ui.add(search_field);
+    let response = ui.add(search_field);
+    response.request_focus();
+    if response.changed() {
+        quick.selected = 0;
+    }
 
+    // Sort commands by levenshtein distance from search field
     let mut indices: Vec<(usize, usize)> = Vec::new();
     for (command, i) in commands.list.iter().zip(0..) {
         let v = strsim::levenshtein(&command.name, &quick.search);
@@ -52,29 +58,39 @@ fn show_inner(
     }
     indices.sort_by(|a, b| a.0.cmp(&b.0));
 
-    for (_, i) in indices {
-        let command = &commands.list[i];
+    // Keybindings
+    let enter_pressed = ui.input(|state| {
+        if state.key_pressed(egui::Key::ArrowDown) {
+            quick.selected = (quick.selected + 1).min(indices.len() - 1);
+        } else if state.key_pressed(egui::Key::ArrowUp) {
+            quick.selected = quick.selected.saturating_sub(1);
+        }
+
+        state.key_pressed(egui::Key::Enter)
+    });
+
+    if enter_pressed {
+        let index = indices[quick.selected].1;
+        world_commands.run_system(commands.list[index].system);
+        return true;
+    }
+
+    // Show commands
+    for (bi, (_, i)) in indices.iter().enumerate() {
+        let command = &commands.list[*i];
         let mut button = egui::Button::new(&command.name)
             .fill(egui::Color32::TRANSPARENT)
-            .min_size(egui::vec2(ui.available_width(), 5.0));
+            .min_size(egui::vec2(ui.available_width(), 5.0))
+            .selected(bi == quick.selected);
 
         if let Some(path) = command.toolbar.as_ref() {
             button = button.shortcut_text(path);
         }
 
-        if !ui.add(button).clicked() {
-            continue;
+        if ui.add(button).clicked() {
+            world_commands.run_system(command.system);
+            return true;
         }
-
-        world_commands.run_system(command.system);
-        // if let Err(e) =  {
-        //     error!(
-        //         "Failed to execute command {:?}\nReturned error: {:?}",
-        //         command, e
-        //     );
-        // }
-
-        return true;
     }
 
     false

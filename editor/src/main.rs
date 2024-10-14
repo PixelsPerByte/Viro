@@ -80,9 +80,7 @@ fn keybindings(
     mut commands: Commands,
 ) {
     if keys.just_pressed(KeyCode::Space) && quick_command.is_none() {
-        commands.insert_resource(interface::quick::QuickCommand {
-            search: String::new(),
-        });
+        commands.insert_resource(interface::quick::QuickCommand::default());
     } else if keys.just_pressed(KeyCode::Escape) && quick_command.is_some() {
         commands.remove_resource::<interface::quick::QuickCommand>();
     }
