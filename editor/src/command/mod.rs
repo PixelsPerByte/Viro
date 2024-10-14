@@ -107,8 +107,8 @@ impl Plugin for CommandPlugin {
 
         register_command(
             app.world_mut(),
-            "Import Gltf".into(),
-            Some("Import"),
+            "Gltf".into(),
+            Some("File/Import"),
             import::gltf,
         );
         // register_command(
