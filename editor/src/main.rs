@@ -16,6 +16,7 @@ use picking::PickingPlugin;
 pub const GUI_ACTION_ID: u64 = 0;
 pub const CAMERA_ACTION_ID: u64 = 1;
 pub const TRANSFORM_ACTION_ID: u64 = 2;
+pub const QUICK_COMMANDS_ACTION_ID: u64 = 3;
 
 #[derive(Resource, Deref)]
 pub struct EditorAction(pub Option<u64>);
@@ -75,17 +76,17 @@ fn setup(mut commands: Commands, mut gizmo_config_store: ResMut<GizmoConfigStore
 fn keybindings(
     keys: Res<ButtonInput<KeyCode>>,
     mouse_button: Res<ButtonInput<MouseButton>>,
-    quick_command: Option<Res<interface::quick::QuickCommand>>,
-    editor_action: Res<EditorAction>,
+    mut editor_action: ResMut<EditorAction>,
     mut commands: Commands,
 ) {
-    if keys.just_pressed(KeyCode::Space)
-        && quick_command.is_none()
-        && editor_action.is_none_or(|v| v == GUI_ACTION_ID)
-    {
+    if keys.just_pressed(KeyCode::Space) && editor_action.is_none_or(|v| v == GUI_ACTION_ID) {
         commands.insert_resource(interface::quick::QuickCommand::default());
-    } else if keys.just_pressed(KeyCode::Escape) && quick_command.is_some() {
+        editor_action.0 = Some(QUICK_COMMANDS_ACTION_ID);
+    } else if keys.just_pressed(KeyCode::Escape)
+        && editor_action.is_some_and(|v| v == QUICK_COMMANDS_ACTION_ID)
+    {
         commands.remove_resource::<interface::quick::QuickCommand>();
+        editor_action.0 = None;
     }
 
     if editor_action.is_none_or(|v| v == TRANSFORM_ACTION_ID) {

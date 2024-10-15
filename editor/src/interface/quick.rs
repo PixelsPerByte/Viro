@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 
-use crate::command::EditorCommands;
+use crate::{command::EditorCommands, EditorAction};
 
 use super::InterfaceSet;
 
@@ -14,6 +14,7 @@ pub struct QuickCommand {
 fn show(
     commands: Res<EditorCommands>,
     mut quick: ResMut<QuickCommand>,
+    mut editor_action: ResMut<EditorAction>,
     mut contexts: EguiContexts,
     mut world_commands: Commands,
 ) {
@@ -33,6 +34,7 @@ fn show(
 
     if close {
         world_commands.remove_resource::<QuickCommand>();
+        editor_action.0 = None;
     }
 }
 
