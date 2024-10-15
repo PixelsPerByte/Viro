@@ -34,7 +34,7 @@ pub fn save<const AS: bool>(world: &mut World) {
         world.insert_resource(SceneFilePath(path));
     }
 
-    let mut scene_builder = DynamicSceneBuilder::from_world(&world)
+    let mut scene_builder = DynamicSceneBuilder::from_world(world)
         .allow_all()
         // .deny::<Handle<Mesh>>()
         // .deny::<Handle<StandardMaterial>>()

@@ -26,7 +26,7 @@ pub struct InterfaceTabViewer<'a> {
     pub added_tabs: &'a mut Vec<AddTab>,
 }
 
-impl<'a> TabViewer for InterfaceTabViewer<'a> {
+impl TabViewer for InterfaceTabViewer<'_> {
     type Tab = InterfaceTab;
 
     fn title(&mut self, tab: &mut Self::Tab) -> bevy_egui::egui::WidgetText {

@@ -28,8 +28,7 @@ fn show(
         .show(ctx, |ui| {
             show_inner(ui, &mut world_commands, &mut quick, &commands)
         })
-        .map(|res| res.inner)
-        .flatten()
+        .and_then(|res| res.inner)
         .unwrap_or(false);
 
     if close {
