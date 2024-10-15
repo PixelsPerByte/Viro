@@ -4,7 +4,6 @@ mod interface;
 mod observers;
 mod picking;
 mod transform;
-mod transform_gizmo;
 
 use bevy::{color::palettes::css::GOLD, prelude::*, render::primitives::Aabb, utils::HashSet};
 use camera::{Flycam, FlycamPlugin};

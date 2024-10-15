@@ -1,3 +1,5 @@
+mod gizmo;
+
 use bevy::{input::mouse::MouseMotion, prelude::*, utils::HashMap};
 
 #[derive(Event, Clone)]
