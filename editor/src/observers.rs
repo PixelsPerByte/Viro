@@ -2,7 +2,9 @@ use bevy::{prelude::*, utils::HashMap};
 
 use crate::{
     camera::Flycam,
-    transform::{cancel_transform, finish_transform, TransformEntities, TransformSelected},
+    transform::{
+        cancel_transform, finish_transform, TransformEntities, TransformHome, TransformMode,
+    },
     EditorAction, EditorEntity, SelectedEntities,
 };
 
@@ -35,6 +37,13 @@ pub fn select_entity(
 }
 
 #[derive(Event)]
+pub enum TransformSelected {
+    Translate,
+    Rotate,
+    Scale,
+}
+
+#[derive(Event)]
 pub struct FinishTransform;
 
 #[derive(Event)]
@@ -44,8 +53,8 @@ pub fn transform_selected(
     trigger: Trigger<TransformSelected>,
     selected: Res<SelectedEntities>,
     transform_query: Query<&Transform>,
-    transform_entities: Option<Res<TransformEntities>>,
     camera_query: Query<&Transform, With<Flycam>>,
+    transform_entities: Option<Res<TransformEntities>>,
     mut editor_action: ResMut<EditorAction>,
     mut commands: Commands,
 ) {
@@ -62,20 +71,31 @@ pub fn transform_selected(
         return;
     }
 
-    let (x_axis, y_axis) = {
-        let transform = camera_query
-            .get_single()
-            .expect("Editor Camera doesn't exist.");
+    let camera_rotation = camera_query
+        .get_single()
+        .expect("Editor Camera doesn't exist.")
+        .rotation;
 
-        (transform.rotation * Vec3::X, transform.rotation * Vec3::Y)
+    // Get mode and axises
+    let mode = match trigger.event() {
+        TransformSelected::Translate => TransformMode::Translate {
+            delta: Vec2::ZERO,
+            x_axis: camera_rotation * Vec3::X,
+            y_axis: camera_rotation * Vec3::Y,
+        },
+        TransformSelected::Rotate => TransformMode::Rotate {
+            delta: 0.0,
+            axis: camera_rotation * Vec3::Z,
+        },
+        TransformSelected::Scale => TransformMode::Scale {
+            delta: 0.0,
+            axis: Vec3::ONE,
+        },
     };
 
     let mut resource = TransformEntities {
         entities: HashMap::new(),
-        delta: Vec2::ZERO,
-        x_axis,
-        y_axis,
-        mode: trigger.event().clone(),
+        mode,
         center: Vec3::ZERO,
     };
 
@@ -87,9 +107,9 @@ pub fn transform_selected(
         };
 
         let data = match trigger.event() {
-            TransformSelected::Translate => transform.translation,
-            TransformSelected::Rotate => transform.rotation.to_euler(EulerRot::XYZ).into(),
-            TransformSelected::Scale => transform.scale,
+            TransformSelected::Translate => TransformHome::Vec3(transform.translation),
+            TransformSelected::Rotate => TransformHome::Quat(transform.rotation),
+            TransformSelected::Scale => TransformHome::Vec3(transform.scale),
         };
 
         resource.entities.insert(*entity, data);

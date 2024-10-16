@@ -90,11 +90,11 @@ fn keybindings(
 
     if editor_action.is_none_or(|v| v == TRANSFORM_ACTION_ID) {
         if keys.just_pressed(KeyCode::KeyG) {
-            commands.trigger(transform::TransformSelected::Translate);
+            commands.trigger(observers::TransformSelected::Translate);
         } else if keys.just_pressed(KeyCode::KeyR) {
-            commands.trigger(transform::TransformSelected::Rotate);
+            commands.trigger(observers::TransformSelected::Rotate);
         } else if keys.just_pressed(KeyCode::KeyS) {
-            commands.trigger(transform::TransformSelected::Scale);
+            commands.trigger(observers::TransformSelected::Scale);
         }
     }
 
