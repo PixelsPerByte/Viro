@@ -8,25 +8,30 @@ use crate::EditorEntity;
 pub struct SceneFilePath(pub PathBuf);
 
 pub fn open(world: &mut World) {
-    let Some(path) = rfd::FileDialog::new()
-        .add_filter("bevy scene", &["scn.ron"])
-        .pick_file()
-    else {
+    let mut dialog = rfd::FileDialog::new().add_filter("bevy scene", &["scn.ron"]);
+    if let Ok(path) = std::env::current_dir() {
+        dialog = dialog.set_directory(path);
+    }
+
+    let Some(path) = dialog.pick_file() else {
         error!("Failed to get file path.");
         return;
     };
 
-    let scene = world.load_asset(path);
+    let scene = world.load_asset(path.clone());
 
     world.spawn(SceneBundle { scene, ..default() });
+    world.insert_resource(SceneFilePath(path));
 }
 
 pub fn save<const AS: bool>(world: &mut World) {
     if AS || !world.contains_resource::<SceneFilePath>() {
-        let Some(path) = rfd::FileDialog::new()
-            .add_filter("bevy scene", &["scn.ron"])
-            .save_file()
-        else {
+        let mut dialog = rfd::FileDialog::new().add_filter("bevy scene", &["scn.ron"]);
+        if let Ok(path) = std::env::current_dir() {
+            dialog = dialog.set_directory(path);
+        }
+
+        let Some(path) = dialog.save_file() else {
             error!("Failed to get file path.");
             return;
         };
