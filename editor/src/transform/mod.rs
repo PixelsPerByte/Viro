@@ -1,6 +1,8 @@
 mod gizmo;
+mod input;
+mod observers;
 
-use bevy::{input::mouse::MouseMotion, prelude::*, utils::HashMap, window::PrimaryWindow};
+use bevy::{prelude::*, utils::HashMap};
 
 #[derive(Event, Clone)]
 pub enum TransformMode {
@@ -45,26 +47,6 @@ pub struct TransformEntities {
     pub entities: HashMap<Entity, TransformHome>,
     pub mode: TransformMode,
     pub center: Vec3,
-}
-
-pub fn update_delta(
-    mut mouse_motion: EventReader<MouseMotion>,
-    mut transform_entities: ResMut<TransformEntities>,
-) {
-    for motion in mouse_motion.read() {
-        match &mut transform_entities.mode {
-            TransformMode::Translate { delta, .. } => {
-                delta.x += motion.delta.x * 0.01;
-                delta.y -= motion.delta.y * 0.01;
-            }
-            TransformMode::Rotate { delta, .. } => {
-                *delta += motion.delta.x.atan() * 0.01 + motion.delta.y.atan() * 0.01;
-            }
-            TransformMode::Scale { delta, .. } => {
-                *delta += motion.delta.x * 0.01;
-            }
-        }
-    }
 }
 
 pub fn update_transform(
@@ -144,9 +126,13 @@ pub fn cancel_transform(
 pub struct TransformPlugin;
 impl Plugin for TransformPlugin {
     fn build(&self, app: &mut App) {
+        app.add_systems(PreStartup, observers::setup);
         app.add_systems(
             PreUpdate,
-            update_delta.run_if(resource_exists::<TransformEntities>),
+            (
+                input::update,
+                input::update_delta.run_if(resource_exists::<TransformEntities>),
+            ),
         );
         app.add_systems(
             Update,

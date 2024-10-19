@@ -87,28 +87,6 @@ fn keybindings(
         commands.remove_resource::<interface::quick::QuickCommand>();
         editor_action.0 = None;
     }
-
-    if editor_action.is_none_or(|v| v == TRANSFORM_ACTION_ID) {
-        if keys.just_pressed(KeyCode::KeyG) {
-            commands.trigger(observers::TransformSelected::Translate);
-        } else if keys.just_pressed(KeyCode::KeyR) {
-            commands.trigger(observers::TransformSelected::Rotate);
-        } else if keys.just_pressed(KeyCode::KeyS) {
-            commands.trigger(observers::TransformSelected::Scale);
-        }
-    }
-
-    if editor_action.is_some_and(|v| v == TRANSFORM_ACTION_ID) {
-        if mouse_button.just_pressed(MouseButton::Left) {
-            commands.trigger(observers::FinishTransform);
-        } else if mouse_button.just_pressed(MouseButton::Right) {
-            commands.trigger(observers::CancelTransform);
-        }
-
-        if keys.just_pressed(KeyCode::Escape) {
-            commands.trigger(observers::CancelTransform);
-        }
-    }
 }
 
 fn selection_outlines(
