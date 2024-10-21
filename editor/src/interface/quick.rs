@@ -52,12 +52,12 @@ fn show_inner(
     }
 
     // Sort commands by levenshtein distance from search field
-    let mut indices: Vec<(usize, usize)> = Vec::new();
+    let mut indices: Vec<(f64, usize)> = Vec::new();
     for (command, i) in commands.list.iter().zip(0..) {
-        let v = strsim::levenshtein(&command.name, &quick.search);
+        let v = strsim::jaro_winkler(&command.name, &quick.search);
         indices.push((v, i));
     }
-    indices.sort_by(|a, b| a.0.cmp(&b.0));
+    indices.sort_by(|a, b| a.0.total_cmp(&b.0).reverse());
 
     // Keybindings
     let enter_pressed = ui.input(|state| {
