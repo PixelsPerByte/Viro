@@ -124,37 +124,37 @@ impl Plugin for CommandPlugin {
             app.world_mut(),
             "Cube".into(),
             Some("Add"),
-            add::system::<Cuboid>,
+            add::mesh::<Cuboid>,
         );
         register_command(
             app.world_mut(),
             "Sphere".into(),
             Some("Add"),
-            add::system::<Sphere>,
+            add::mesh::<Sphere>,
         );
         register_command(
             app.world_mut(),
             "Plane".into(),
             Some("Add"),
-            add::system::<Plane3d>,
+            add::mesh::<Plane3d>,
         );
         register_command(
             app.world_mut(),
             "Cylinder".into(),
             Some("Add"),
-            add::system::<Cylinder>,
+            add::mesh::<Cylinder>,
         );
         register_command(
             app.world_mut(),
             "Cone".into(),
             Some("Add"),
-            add::system::<Cone>,
+            add::mesh::<Cone>,
         );
         register_command(
             app.world_mut(),
             "Torus".into(),
             Some("Add"),
-            add::system::<Torus>,
+            add::mesh::<Torus>,
         );
     }
 }

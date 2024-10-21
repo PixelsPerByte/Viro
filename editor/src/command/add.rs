@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-pub fn system<M: Into<Mesh> + TypePath + Default>(
+pub fn mesh<M: Into<Mesh> + TypePath + Default>(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut commands: Commands,
