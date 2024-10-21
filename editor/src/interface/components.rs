@@ -74,6 +74,80 @@ pub fn setup(mut component_uis: ResMut<ComponentUis>) {
     );
 
     component_uis.0.insert(
+        TypeId::of::<Handle<StandardMaterial>>(),
+        Box::new(|ui, mut entity| {
+            let handle = entity
+                .get::<Handle<StandardMaterial>>()
+                .unwrap()
+                .clone_weak();
+            let world = unsafe { entity.world_mut() };
+            let mut materials = world
+                .get_resource_mut::<Assets<StandardMaterial>>()
+                .unwrap();
+
+            let material = materials.get_mut(&handle).unwrap();
+
+            ui.horizontal(|ui| {
+                let rgba = material.base_color.to_srgba().to_u8_array();
+                let mut color =
+                    egui::Color32::from_rgba_premultiplied(rgba[0], rgba[1], rgba[2], rgba[3]);
+
+                ui.label("Base Color");
+                if ui.color_edit_button_srgba(&mut color).changed() {
+                    material.base_color = Srgba::from_u8_array(color.to_array()).into();
+                }
+            });
+
+            ui.horizontal(|ui| {
+                let rgba = material.emissive.to_u8_array();
+                let mut color =
+                    egui::Color32::from_rgba_premultiplied(rgba[0], rgba[1], rgba[2], rgba[3]);
+
+                ui.label("Emissive");
+                if ui.color_edit_button_srgba(&mut color).changed() {
+                    material.emissive = LinearRgba::from_u8_array(color.to_array()).into();
+                }
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Emissive Exposure Weight");
+                ui.add(
+                    egui::DragValue::new(&mut material.emissive_exposure_weight)
+                        .range(0.0..=1.0)
+                        .speed(0.01),
+                );
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Perceptual Roughness");
+                ui.add(
+                    egui::DragValue::new(&mut material.perceptual_roughness)
+                        .range(0.089..=1.0)
+                        .speed(0.01),
+                );
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Metallic");
+                ui.add(
+                    egui::DragValue::new(&mut material.metallic)
+                        .range(0.0..=1.0)
+                        .speed(0.01),
+                );
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Reflectance");
+                ui.add(
+                    egui::DragValue::new(&mut material.reflectance)
+                        .range(0.0..=1.0)
+                        .speed(0.01),
+                );
+            });
+        }),
+    );
+
+    component_uis.0.insert(
         TypeId::of::<PointLight>(),
         Box::new(|ui, mut entity| {
             let mut light = entity.get_mut::<PointLight>().unwrap();
