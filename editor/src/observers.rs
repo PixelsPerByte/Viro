@@ -4,6 +4,7 @@ use crate::{EditorAction, EditorEntity, SelectedEntities};
 
 pub fn setup(mut commands: Commands) {
     commands.spawn((Observer::new(select_entity), EditorEntity));
+    commands.spawn((Observer::new(delete_selected), EditorEntity));
 }
 
 #[derive(Event)]
@@ -22,8 +23,21 @@ pub fn select_entity(
 
     let event = trigger.event();
 
-    if !selected.0.remove(&event.target) {
+    if !selected.0.swap_remove(&event.target) {
         selected.0.insert(event.target);
+    }
+}
+
+#[derive(Event)]
+pub struct DeleteSelected;
+
+fn delete_selected(
+    _trigger: Trigger<DeleteSelected>,
+    mut selected: ResMut<SelectedEntities>,
+    mut commands: Commands,
+) {
+    while let Some(entity) = selected.0.pop() {
+        commands.entity(entity).despawn_recursive();
     }
 }
 

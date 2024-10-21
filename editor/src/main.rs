@@ -8,6 +8,7 @@ mod transform;
 use bevy::{color::palettes::css::GOLD, prelude::*, render::primitives::Aabb, utils::HashSet};
 use camera::{Flycam, FlycamPlugin};
 use command::CommandPlugin;
+use indexmap::IndexSet;
 use interface::InterfacePlugin;
 use observers::ObserverPlugin;
 use picking::PickingPlugin;
@@ -24,12 +25,12 @@ pub struct EditorAction(pub Option<u64>);
 pub struct EditorEntity;
 
 #[derive(Resource)]
-pub struct SelectedEntities(pub HashSet<Entity>);
+pub struct SelectedEntities(pub IndexSet<Entity>);
 
 fn main() {
     let mut app = App::new();
 
-    app.insert_resource(SelectedEntities(HashSet::default()));
+    app.insert_resource(SelectedEntities(IndexSet::default()));
     app.insert_resource(EditorAction(None));
 
     app.add_plugins((
@@ -86,6 +87,10 @@ fn keybindings(
     {
         commands.remove_resource::<interface::quick::QuickCommand>();
         editor_action.0 = None;
+    }
+
+    if keys.just_pressed(KeyCode::Delete) && editor_action.is_none() {
+        commands.trigger(observers::DeleteSelected);
     }
 }
 
