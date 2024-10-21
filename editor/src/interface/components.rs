@@ -72,4 +72,146 @@ pub fn setup(mut component_uis: ResMut<ComponentUis>) {
             });
         }),
     );
+
+    component_uis.0.insert(
+        TypeId::of::<PointLight>(),
+        Box::new(|ui, mut entity| {
+            let mut light = entity.get_mut::<PointLight>().unwrap();
+
+            ui.horizontal(|ui| {
+                let rgba = light.color.to_srgba().to_u8_array();
+                let mut color =
+                    egui::Color32::from_rgba_premultiplied(rgba[0], rgba[1], rgba[2], rgba[3]);
+
+                ui.label("Color");
+                if ui.color_edit_button_srgba(&mut color).changed() {
+                    light.color = Srgba::from_u8_array(color.to_array()).into();
+                }
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Intensity");
+                ui.add(egui::DragValue::new(&mut light.intensity).suffix(" lumens"));
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Range");
+                ui.add(egui::DragValue::new(&mut light.range));
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Radius");
+                ui.add(egui::DragValue::new(&mut light.radius));
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Shadows");
+                ui.checkbox(&mut light.shadows_enabled, "");
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Shadow Depth Bias");
+                ui.add(egui::DragValue::new(&mut light.shadow_depth_bias));
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Shadow Normal Bias");
+                ui.add(egui::DragValue::new(&mut light.shadow_normal_bias));
+            });
+        }),
+    );
+    component_uis.0.insert(
+        TypeId::of::<SpotLight>(),
+        Box::new(|ui, mut entity| {
+            let mut light = entity.get_mut::<SpotLight>().unwrap();
+
+            ui.horizontal(|ui| {
+                let rgba = light.color.to_srgba().to_u8_array();
+                let mut color =
+                    egui::Color32::from_rgba_premultiplied(rgba[0], rgba[1], rgba[2], rgba[3]);
+
+                ui.label("Color");
+                if ui.color_edit_button_srgba(&mut color).changed() {
+                    light.color = Srgba::from_u8_array(color.to_array()).into();
+                }
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Intensity");
+                ui.add(egui::DragValue::new(&mut light.intensity).suffix(" lumens"));
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Range");
+                ui.add(egui::DragValue::new(&mut light.range));
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Radius");
+                ui.add(egui::DragValue::new(&mut light.radius));
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Outer Angle");
+                ui.drag_angle_tau(&mut light.outer_angle);
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Inner Angle");
+                ui.drag_angle_tau(&mut light.inner_angle);
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Shadows");
+                ui.checkbox(&mut light.shadows_enabled, "");
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Shadow Depth Bias");
+                ui.add(egui::DragValue::new(&mut light.shadow_depth_bias));
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Shadow Normal Bias");
+                ui.add(egui::DragValue::new(&mut light.shadow_normal_bias));
+            });
+        }),
+    );
+    component_uis.0.insert(
+        TypeId::of::<DirectionalLight>(),
+        Box::new(|ui, mut entity| {
+            let mut light = entity.get_mut::<DirectionalLight>().unwrap();
+
+            ui.horizontal(|ui| {
+                let rgba = light.color.to_srgba().to_u8_array();
+                let mut color =
+                    egui::Color32::from_rgba_premultiplied(rgba[0], rgba[1], rgba[2], rgba[3]);
+
+                ui.label("Color");
+                if ui.color_edit_button_srgba(&mut color).changed() {
+                    light.color = Srgba::from_u8_array(color.to_array()).into();
+                }
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Illuminance");
+                ui.add(egui::DragValue::new(&mut light.illuminance).suffix(" lux"));
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Shadows");
+                ui.checkbox(&mut light.shadows_enabled, "");
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Shadow Depth Bias");
+                ui.add(egui::DragValue::new(&mut light.shadow_depth_bias));
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Shadow Normal Bias");
+                ui.add(egui::DragValue::new(&mut light.shadow_normal_bias));
+            });
+        }),
+    );
 }
