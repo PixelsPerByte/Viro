@@ -15,6 +15,7 @@ pub struct SelectEntity {
 pub fn select_entity(
     trigger: Trigger<SelectEntity>,
     editor_action: Res<EditorAction>,
+    keys: Res<ButtonInput<KeyCode>>,
     mut selected: ResMut<SelectedEntities>,
 ) {
     if editor_action.is_some_and(|v| v != crate::GUI_ACTION_ID) {
@@ -22,10 +23,14 @@ pub fn select_entity(
     }
 
     let event = trigger.event();
-
-    if !selected.0.swap_remove(&event.target) {
-        selected.0.insert(event.target);
+    if selected.0.swap_remove(&event.target) {
+        return;
     }
+
+    if !keys.pressed(KeyCode::ShiftLeft) {
+        selected.0.clear();
+    }
+    selected.0.insert(event.target);
 }
 
 #[derive(Event)]
