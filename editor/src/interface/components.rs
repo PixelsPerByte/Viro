@@ -43,18 +43,30 @@ pub fn setup(mut component_uis: ResMut<ComponentUis>) {
 
             ui.label("Translation");
             ui.horizontal(|ui| {
-                ui.add(DragValue::new(&mut transform.translation.x).prefix("X "));
-                ui.add(DragValue::new(&mut transform.translation.y).prefix("Y "));
-                ui.add(DragValue::new(&mut transform.translation.z).prefix("Z "));
+                ui.add(
+                    DragValue::new(&mut transform.translation.x)
+                        .prefix("X ")
+                        .speed(0.1),
+                );
+                ui.add(
+                    DragValue::new(&mut transform.translation.y)
+                        .prefix("Y ")
+                        .speed(0.1),
+                );
+                ui.add(
+                    DragValue::new(&mut transform.translation.z)
+                        .prefix("Z ")
+                        .speed(0.1),
+                );
             });
 
             ui.label("Rotation");
             ui.horizontal(|ui| {
                 let (rx, ry, rz) = transform.rotation.to_euler(EulerRot::XYZ);
                 let (mut rx, mut ry, mut rz) = (rx.to_degrees(), ry.to_degrees(), rz.to_degrees());
-                ui.add(DragValue::new(&mut rx).prefix("X "));
-                ui.add(DragValue::new(&mut ry).prefix("Y "));
-                ui.add(DragValue::new(&mut rz).prefix("Z "));
+                ui.add(DragValue::new(&mut rx).prefix("X ").speed(0.1));
+                ui.add(DragValue::new(&mut ry).prefix("Y ").speed(0.1));
+                ui.add(DragValue::new(&mut rz).prefix("Z ").speed(0.1));
 
                 transform.rotation = Quat::from_euler(
                     EulerRot::XYZ,
@@ -66,9 +78,21 @@ pub fn setup(mut component_uis: ResMut<ComponentUis>) {
 
             ui.label("Scale");
             ui.horizontal(|ui| {
-                ui.add(DragValue::new(&mut transform.scale.x).prefix("X "));
-                ui.add(DragValue::new(&mut transform.scale.y).prefix("Y "));
-                ui.add(DragValue::new(&mut transform.scale.z).prefix("Z "));
+                ui.add(
+                    DragValue::new(&mut transform.scale.x)
+                        .prefix("X ")
+                        .speed(0.1),
+                );
+                ui.add(
+                    DragValue::new(&mut transform.scale.y)
+                        .prefix("Y ")
+                        .speed(0.1),
+                );
+                ui.add(
+                    DragValue::new(&mut transform.scale.z)
+                        .prefix("Z ")
+                        .speed(0.1),
+                );
             });
         }),
     );
@@ -170,12 +194,12 @@ pub fn setup(mut component_uis: ResMut<ComponentUis>) {
 
             ui.horizontal(|ui| {
                 ui.label("Range");
-                ui.add(egui::DragValue::new(&mut light.range));
+                ui.add(egui::DragValue::new(&mut light.range).speed(0.1));
             });
 
             ui.horizontal(|ui| {
                 ui.label("Radius");
-                ui.add(egui::DragValue::new(&mut light.radius));
+                ui.add(egui::DragValue::new(&mut light.radius).speed(0.1));
             });
 
             ui.horizontal(|ui| {
@@ -185,12 +209,12 @@ pub fn setup(mut component_uis: ResMut<ComponentUis>) {
 
             ui.horizontal(|ui| {
                 ui.label("Shadow Depth Bias");
-                ui.add(egui::DragValue::new(&mut light.shadow_depth_bias));
+                ui.add(egui::DragValue::new(&mut light.shadow_depth_bias).speed(0.01));
             });
 
             ui.horizontal(|ui| {
                 ui.label("Shadow Normal Bias");
-                ui.add(egui::DragValue::new(&mut light.shadow_normal_bias));
+                ui.add(egui::DragValue::new(&mut light.shadow_normal_bias).speed(0.01));
             });
         }),
     );
@@ -217,12 +241,12 @@ pub fn setup(mut component_uis: ResMut<ComponentUis>) {
 
             ui.horizontal(|ui| {
                 ui.label("Range");
-                ui.add(egui::DragValue::new(&mut light.range));
+                ui.add(egui::DragValue::new(&mut light.range).speed(0.1));
             });
 
             ui.horizontal(|ui| {
                 ui.label("Radius");
-                ui.add(egui::DragValue::new(&mut light.radius));
+                ui.add(egui::DragValue::new(&mut light.radius).speed(0.1));
             });
 
             ui.horizontal(|ui| {
@@ -242,12 +266,12 @@ pub fn setup(mut component_uis: ResMut<ComponentUis>) {
 
             ui.horizontal(|ui| {
                 ui.label("Shadow Depth Bias");
-                ui.add(egui::DragValue::new(&mut light.shadow_depth_bias));
+                ui.add(egui::DragValue::new(&mut light.shadow_depth_bias).speed(0.01));
             });
 
             ui.horizontal(|ui| {
                 ui.label("Shadow Normal Bias");
-                ui.add(egui::DragValue::new(&mut light.shadow_normal_bias));
+                ui.add(egui::DragValue::new(&mut light.shadow_normal_bias).speed(0.01));
             });
         }),
     );
@@ -279,12 +303,12 @@ pub fn setup(mut component_uis: ResMut<ComponentUis>) {
 
             ui.horizontal(|ui| {
                 ui.label("Shadow Depth Bias");
-                ui.add(egui::DragValue::new(&mut light.shadow_depth_bias));
+                ui.add(egui::DragValue::new(&mut light.shadow_depth_bias).speed(0.01));
             });
 
             ui.horizontal(|ui| {
                 ui.label("Shadow Normal Bias");
-                ui.add(egui::DragValue::new(&mut light.shadow_normal_bias));
+                ui.add(egui::DragValue::new(&mut light.shadow_normal_bias).speed(0.01));
             });
         }),
     );
