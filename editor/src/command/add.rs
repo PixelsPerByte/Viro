@@ -15,3 +15,18 @@ pub fn mesh<M: Into<Mesh> + TypePath + Default>(
         entity_cmds.insert(Name::new(ident));
     }
 }
+
+pub fn point_light(mut commands: Commands) {
+    commands.spawn((PointLightBundle::default(), Name::new("PointLight")));
+}
+
+pub fn spot_light(mut commands: Commands) {
+    commands.spawn((SpotLightBundle::default(), Name::new("SpotLight")));
+}
+
+pub fn directional_light(mut commands: Commands) {
+    commands.spawn((
+        DirectionalLightBundle::default(),
+        Name::new("DirectionalLight"),
+    ));
+}

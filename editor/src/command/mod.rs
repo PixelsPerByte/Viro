@@ -156,5 +156,24 @@ impl Plugin for CommandPlugin {
             Some("Add"),
             add::mesh::<Torus>,
         );
+
+        register_command(
+            app.world_mut(),
+            "Directional Light".into(),
+            Some("Add"),
+            add::directional_light,
+        );
+        register_command(
+            app.world_mut(),
+            "Point Light".into(),
+            Some("Add"),
+            add::point_light,
+        );
+        register_command(
+            app.world_mut(),
+            "Spot Light".into(),
+            Some("Add"),
+            add::spot_light,
+        );
     }
 }
